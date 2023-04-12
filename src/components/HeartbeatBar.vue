@@ -99,20 +99,20 @@ export default {
         },
 
         barStyle() {
-            let overflowY = this.renderAllHeartbeatList ? "auto" : "hidden";
+            let whiteSpace = this.renderAllHeartbeatList ? "break-spaces" : "normal";
             if (this.move && this.shortBeatList.length > this.maxBeat) {
                 let width = -(this.beatWidth + this.beatMargin * 2);
 
                 return {
                     transition: "all ease-in-out 0.25s",
                     transform: `translateX(${width}px)`,
-                    overflowY: overflowY,
+                    whiteSpace: whiteSpace,
                 };
 
             }
             return {
                 transform: "translateX(0)",
-                overflowY: overflowY,
+                whiteSpace: whiteSpace,
             };
 
         },
