@@ -78,6 +78,11 @@
                         <p>(30{{ $t("-day") }})</p>
                         <span class="num"><Uptime :monitor="monitor" type="720" /></span>
                     </div>
+                    <div class="col">
+                        <h4>{{ $t("Uptime") }}</h4>
+                        <p>(365{{ $t("-day") }})</p>
+                        <span class="num"><Uptime :monitor="monitor" type="8760" /></span>
+                    </div>
 
                     <div v-if="tlsInfo" class="col">
                         <h4>{{ $t("Cert Exp.") }}</h4>

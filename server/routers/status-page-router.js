@@ -82,7 +82,7 @@ router.get("/api/status-page/heartbeat/:slug", cache("1 minutes"), async (reques
                     SELECT * FROM heartbeat
                     WHERE monitor_id = ?
                     ORDER BY time DESC
-                    LIMIT 50
+                    LIMIT 365
             `, [
                 monitorID,
             ]);
@@ -90,8 +90,12 @@ router.get("/api/status-page/heartbeat/:slug", cache("1 minutes"), async (reques
             list = R.convertToBeans("heartbeat", list);
             heartbeatList[monitorID] = list.reverse().map(row => row.toPublicJSON());
 
-            const type = 24;
-            uptimeList[`${monitorID}_${type}`] = await Monitor.calcUptime(type, monitorID);
+            const type24 = 24;
+            uptimeList[`${monitorID}_${type24}`] = await Monitor.calcUptime(type24, monitorID);
+            const typeMonth = 24 * 30; // 720
+            uptimeList[`${monitorID}_${typeMonth}`] = await Monitor.calcUptime(typeMonth, monitorID);
+            const typeYear = 24 * 365; // 8760
+            uptimeList[`${monitorID}_${typeYear}`] = await Monitor.calcUptime(typeYear, monitorID);
         }
 
         response.json({

@@ -87,6 +87,9 @@ export default {
             if (this.type === "720") {
                 return `30${this.$t("-day")}`;
             }
+            if (this.type === "8760") {
+                return `365${this.$t("-day")}`;
+            }
 
             return `24${this.$t("-hour")}`;
         }

@@ -273,7 +273,7 @@ router.get("/api/badge/:id/ping/:duration?", cache("5 minutes"), async (request,
         const requestedMonitorId = parseInt(request.params.id, 10);
 
         // Default duration is 24 (h) if not defined in queryParam, limited to 720h (30d)
-        const requestedDuration = Math.min(request.params.duration ? parseInt(request.params.duration, 10) : 24, 720);
+        const requestedDuration = Math.min(request.params.duration ? parseInt(request.params.duration, 10) : 24, 8640);
         const overrideValue = value && parseFloat(value);
 
         const publicAvgPing = parseInt(await R.getCell(`

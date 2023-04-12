@@ -31,7 +31,12 @@ export default {
         heartbeatList: {
             type: Array,
             default: null,
-        }
+        },
+        /** Render all heartbeatList with the scroll bar. Default only renders the number of heartbeat based on the width of the screen */
+        renderAllHeartbeatList: {
+            type: Boolean,
+            default: false
+        },
     },
     data() {
         return {
@@ -64,6 +69,9 @@ export default {
             let placeholders = [];
 
             let start = this.beatList.length - this.maxBeat;
+            if (this.renderAllHeartbeatList) {
+                start = 0;
+            }
 
             if (this.move) {
                 start = start - 1;
@@ -91,17 +99,20 @@ export default {
         },
 
         barStyle() {
+            let overflowY = this.renderAllHeartbeatList ? "auto" : "hidden";
             if (this.move && this.shortBeatList.length > this.maxBeat) {
                 let width = -(this.beatWidth + this.beatMargin * 2);
 
                 return {
                     transition: "all ease-in-out 0.25s",
                     transform: `translateX(${width}px)`,
+                    overflowY: overflowY,
                 };
 
             }
             return {
                 transform: "translateX(0)",
+                overflowY: overflowY,
             };
 
         },

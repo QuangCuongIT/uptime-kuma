@@ -959,6 +959,7 @@ class Monitor extends BeanModel {
             await Monitor.sendAvgPing(24, io, monitorID, userID);
             await Monitor.sendUptime(24, io, monitorID, userID);
             await Monitor.sendUptime(24 * 30, io, monitorID, userID);
+            await Monitor.sendUptime(365 * 30, io, monitorID, userID);
             await Monitor.sendCertInfo(io, monitorID, userID);
         } else {
             log.debug("monitor", "No clients in the room, no need to send stats");

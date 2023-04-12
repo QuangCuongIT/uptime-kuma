@@ -33,12 +33,10 @@
                         <template #item="monitor">
                             <div class="item">
                                 <div class="row">
-                                    <div class="col-9 col-md-8 small-padding">
+                                    <div class="col-3 col-md-4 small-padding">
                                         <div class="info">
                                             <font-awesome-icon v-if="editMode" icon="arrows-alt-v" class="action drag me-3" />
                                             <font-awesome-icon v-if="editMode" icon="times" class="action remove me-3" @click="removeMonitor(group.index, monitor.index)" />
-
-                                            <Uptime :monitor="monitor.element" type="24" :pill="true" />
                                             <a
                                                 v-if="showLink(monitor)"
                                                 :href="monitor.element.url"
@@ -66,8 +64,28 @@
                                             <Tag v-for="tag in monitor.element.tags" :key="tag" :item="tag" :size="'sm'" />
                                         </div>
                                     </div>
+                                    <div class="col-3 col-md-4 row">
+                                        <div class="col">
+                                            <p>24{{ $t("-hour") }}</p>
+                                            <span class="num">
+                                                <Uptime :monitor="monitor.element" type="24" :pill="true" />
+                                            </span>
+                                        </div>
+                                        <div class="col">
+                                            <p>30{{ $t("-day") }}</p>
+                                            <span class="num">
+                                                <Uptime :monitor="monitor.element" type="720" :pill="true" />
+                                            </span>
+                                        </div>
+                                        <div class="col">
+                                            <p>365{{ $t("-day") }}</p>
+                                            <span class="num">
+                                                <Uptime :monitor="monitor.element" type="8760" :pill="true" />
+                                            </span>
+                                        </div>
+                                    </div>
                                     <div :key="$root.userHeartbeatBar" class="col-3 col-md-4">
-                                        <HeartbeatBar size="small" :monitor-id="monitor.element.id" />
+                                        <HeartbeatBar renderAllHeartbeatList="true" size="small" :monitor-id="monitor.element.id" />
                                     </div>
                                 </div>
                             </div>
