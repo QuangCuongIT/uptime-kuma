@@ -5,6 +5,7 @@ const StatusPage = require("../model/status_page");
 const { allowDevAllOrigin, sendHttpError } = require("../util-server");
 const { R } = require("redbean-node");
 const Monitor = require("../model/monitor");
+const dayjs = require("dayjs");
 
 let router = express.Router();
 
@@ -89,6 +90,9 @@ router.get("/api/status-page/heartbeat/:slug", cache("1 minutes"), async (reques
 
             list = R.convertToBeans("heartbeat", list);
             heartbeatList[monitorID] = list.reverse().map(row => row.toPublicJSON());
+
+            let now = dayjs.utc();
+            let result = await Monitor.calcUptimeInTimeWindow(monitorID, now.subtract(24, "hour"), now);
 
             const type24 = 24;
             uptimeList[`${monitorID}_${type24}`] = await Monitor.calcUptime(type24, monitorID);
