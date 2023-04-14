@@ -64,11 +64,13 @@ export default {
          * If heartbeatList is null, get it from $root.heartbeatList
          */
         beatList() {
+            let list = [];
             if (this.heartbeatList === null) {
-                return this.$root.heartbeatList[this.monitorId];
+                list = this.$root.heartbeatList[this.monitorId];
             } else {
-                return this.heartbeatList;
+                list = this.heartbeatList;
             }
+            return list.reverse();
         },
 
         shortBeatList() {
