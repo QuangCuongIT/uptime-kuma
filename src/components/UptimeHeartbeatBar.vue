@@ -5,7 +5,17 @@
                 v-for="(beat, index) in shortBeatList"
                 :key="index"
                 class="beat"
-                :class="{ 'empty' : (beat.uptime === null), 'down' : (beat.uptime === 0), 'pending' : (beat.uptime <= 0.99 && beat.uptime >= 0.98) }"
+                :class="{
+                    'empty': beat.uptime === null,
+                    'down' : (beat.uptime === 0),
+                    'avail-four-nines':
+                        beat.uptime <= 100 && beat.uptime >= 0.9999,
+                    'avail-three-nines':
+                        beat.uptime < 0.9999 && beat.uptime >= 0.999,
+                    'avail-two-nines':
+                        beat.uptime < 0.9999 && beat.uptime >= 0.99,
+                    'avail-below-two-nines': beat.uptime < 0.99 && beat.uptime > 0,
+                }"
                 :style="beatStyle"
                 :title="getBeatTitle(beat)"
             />
@@ -188,7 +198,7 @@ export default {
          * @returns {string}
          */
         getBeatTitle(beat) {
-            return `${this.$root.datetime(beat.time)}` + ((beat.uptime) ? ` - ${beat.uptime.toFixed(4) * 100}%` : " - no data");
+            return `${this.$root.datetime(beat.time)}` + ((beat.uptime) ? ` - ${(Math.round((beat.uptime * 100) * 100) / 100)}%` : " - no data");
         },
 
     },
@@ -218,12 +228,20 @@ export default {
             background-color: $danger;
         }
 
-        &.pending {
-            background-color: $warning;
+        &.avail-below-two-nines {
+            background-color: $avail-below-two-nines;
         }
 
-        &.maintenance {
-            background-color: $maintenance;
+        &.avail-four-nines {
+            background-color: #20c05b;
+        }
+
+        &.avail-three-nines {
+            background-color: #5fe791;
+        }
+
+        &.avail-two-nines {
+            background-color: #97e9b5;
         }
 
         &:not(.empty):hover {
