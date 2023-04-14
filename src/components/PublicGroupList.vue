@@ -85,7 +85,7 @@
                                         </div>
                                     </div>
                                     <div :key="$root.userHeartbeatBar" class="col-3 col-md-4">
-                                        <HeartbeatBar renderAllHeartbeatList="true" size="small" :monitor-id="monitor.element.id" />
+                                        <UptimeHeartbeatBar renderAllHeartbeatList="true" size="small" :monitor-id="monitor.element.id" />
                                     </div>
                                 </div>
                             </div>
@@ -99,14 +99,14 @@
 
 <script>
 import Draggable from "vuedraggable";
-import HeartbeatBar from "./HeartbeatBar.vue";
+import UptimeHeartbeatBar from "./UptimeHeartbeatBar.vue";
 import Uptime from "./Uptime.vue";
 import Tag from "./Tag.vue";
 
 export default {
     components: {
         Draggable,
-        HeartbeatBar,
+        UptimeHeartbeatBar,
         Uptime,
         Tag,
     },

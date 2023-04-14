@@ -79,20 +79,38 @@ router.get("/api/status-page/heartbeat/:slug", cache("1 minutes"), async (reques
         ]);
 
         for (let monitorID of monitorIDList) {
-            let list = await R.getAll(`
-                    SELECT * FROM heartbeat
-                    WHERE monitor_id = ?
-                    ORDER BY time DESC
-                    LIMIT 365
-            `, [
-                monitorID,
-            ]);
+            // let list = await R.getAll(`
+            //         SELECT * FROM heartbeat
+            //         WHERE monitor_id = ?
+            //         ORDER BY time DESC
+            //         LIMIT 365
+            // `, [
+            //     monitorID,
+            // ]);
 
-            list = R.convertToBeans("heartbeat", list);
-            heartbeatList[monitorID] = list.reverse().map(row => row.toPublicJSON());
+            // list = R.convertToBeans("heartbeat", list);
+            // heartbeatList[monitorID] = list.reverse().map(row => row.toPublicJSON());
 
-            let now = dayjs.utc();
-            let result = await Monitor.calcUptimeInTimeWindow(monitorID, now.subtract(24, "hour"), now);
+            // uptime by day
+            let uptimeListNew = [];
+            let date = dayjs.utc().hour(0).minute(0).second(0);
+            let i = 366;
+            // 365 to 1
+            while (i-- && i > 0) {
+                let start = date.subtract(i, "day");
+                let end = start.add(23, "hour").add(59, "minute").add(59, "second");
+
+                let uptime = await Monitor.calcUptimeInTimeWindow(monitorID, start, end);
+                uptimeListNew.push({
+                    msg: "",
+                    ping: 0,
+                    status: 1,
+                    time: start.format("YYYY-MM-DD HH:mm:ss").toString(),
+                    uptime: uptime,
+                });
+            }
+
+            heartbeatList[monitorID] = uptimeListNew;
 
             const type24 = 24;
             uptimeList[`${monitorID}_${type24}`] = await Monitor.calcUptime(type24, monitorID);

@@ -1145,7 +1145,7 @@ class Monitor extends BeanModel {
 
         let totalDuration = result.total_duration;
         let uptimeDuration = result.uptime_duration;
-        let uptime = 0;
+        let uptime = null;
 
         if (totalDuration > 0) {
             uptime = uptimeDuration / totalDuration;
@@ -1155,8 +1155,11 @@ class Monitor extends BeanModel {
 
         } else {
             // Handle new monitor with only one beat, because the beat's duration = 0
-            let status = parseInt(await R.getCell("SELECT `status` FROM heartbeat WHERE monitor_id = ?", [ monitorID ]));
+            let status = parseInt(await R.getCell("SELECT `status` FROM heartbeat WHERE monitor_id = ? AND time > ? AND time < ?", [ monitorID, startIsoTime, endIsoTime ]));
 
+            if (!isNaN(status)) {
+                uptime = 0;
+            }
             if (status === UP) {
                 uptime = 1;
             }
