@@ -1091,19 +1091,7 @@ class Monitor extends BeanModel {
      * @param {dayjs.Dayjs} startTime start time window
      * @param {dayjs.Dayjs} endTime end time window
      */
-    static async calcUptimeInTimeWindow(monitorID, startTime, endTime, forceNoCache = false) {
-
-        // temporary ignore cache
-        // if (!forceNoCache) {
-        //     let cachedUptime = UptimeCacheList.getUptime(monitorID, duration);
-        //     if (cachedUptime != null) {
-        //         return cachedUptime;
-        //     }
-        // }
-
-        const timeLogger = new TimeLogger();
-
-        // const startIsoDateTime = R.isoDateTime(dayjs.utc().subtract(duration, "hour"));
+    static async calcUptimeInTimeWindow(monitorID, startTime, endTime) {
         const startIsoTime = R.isoDateTime(startTime);
         const endIsoTime = R.isoDateTime(endTime);
 
@@ -1140,9 +1128,6 @@ class Monitor extends BeanModel {
             monitorID,
         ]);
 
-        // temporary ignore
-        // timeLogger.print(`[Monitor: ${monitorID}][${duration}] sendUptime`);
-
         let totalDuration = result.total_duration;
         let uptimeDuration = result.uptime_duration;
         let uptime = null;
@@ -1164,10 +1149,6 @@ class Monitor extends BeanModel {
                 uptime = 1;
             }
         }
-
-        // temporary ignore cache
-        // Cache
-        // UptimeCacheList.addUptime(monitorID, duration, uptime);
 
         return uptime;
     }
