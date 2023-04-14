@@ -7,14 +7,14 @@
                 class="beat"
                 :class="{
                     'empty': beat.uptime === null,
-                    'down' : (beat.uptime === 0),
-                    'avail-four-nines':
-                        beat.uptime <= 100 && beat.uptime >= 0.9999,
-                    'avail-three-nines':
-                        beat.uptime < 0.9999 && beat.uptime >= 0.999,
-                    'avail-two-nines':
-                        beat.uptime < 0.9999 && beat.uptime >= 0.99,
-                    'avail-below-two-nines': beat.uptime < 0.99 && beat.uptime > 0,
+                    'full-green':
+                        beat.uptime && beat.uptime <= 100 && beat.uptime >= 0.9999,
+                    'light-green':
+                        beat.uptime && beat.uptime < 0.9999 && beat.uptime >= 0.999,
+                    'orange':
+                        beat.uptime && beat.uptime < 0.9999 && beat.uptime >= 0.99,
+                    'red':
+                        beat.uptime && beat.uptime < 0.99 && beat.uptime >= 0,
                 }"
                 :style="beatStyle"
                 :title="getBeatTitle(beat)"
@@ -224,24 +224,20 @@ export default {
             background-color: aliceblue;
         }
 
-        &.down {
+        &.red {
             background-color: $danger;
         }
 
-        &.avail-below-two-nines {
-            background-color: $avail-below-two-nines;
+        &.orange {
+            background-color: $orange;
         }
 
-        &.avail-four-nines {
-            background-color: #20c05b;
+        &.full-green {
+            background-color: $full-green;
         }
 
-        &.avail-three-nines {
-            background-color: #5fe791;
-        }
-
-        &.avail-two-nines {
-            background-color: #97e9b5;
+        &.light-green {
+            background-color: $light-green;
         }
 
         &:not(.empty):hover {
