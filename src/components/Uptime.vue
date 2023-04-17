@@ -62,9 +62,12 @@ export default {
                         return "light-green";
                     }
                     if (uptime < 0.999 && uptime >= 0.99) {
+                        return "light-green-1";
+                    }
+                    if (uptime < 0.99 && uptime >= 0.90) {
                         return "orange";
                     }
-                    if (uptime < 0.99 && uptime >= 0) {
+                    if (uptime < 0.90 && uptime >= 0) {
                         return "red";
                     }
                 }

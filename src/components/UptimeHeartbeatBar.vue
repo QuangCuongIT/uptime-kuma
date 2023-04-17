@@ -11,10 +11,12 @@
                         beat.uptime && beat.uptime <= 100 && beat.uptime >= 0.9999,
                     'light-green':
                         beat.uptime && beat.uptime < 0.9999 && beat.uptime >= 0.999,
-                    'orange':
+                    'light-green-1':
                         beat.uptime && beat.uptime < 0.999 && beat.uptime >= 0.99,
+                    'orange':
+                        beat.uptime && beat.uptime < 0.99 && beat.uptime >= 0.90,
                     'red':
-                        beat.uptime !== null && beat.uptime < 0.99 && beat.uptime >= 0,
+                        beat.uptime !== null && beat.uptime < 0.90 && beat.uptime >= 0,
                 }"
                 :style="beatStyle"
                 :title="getBeatTitle(beat)"
@@ -228,6 +230,10 @@ export default {
 
         &.red {
             background-color: $danger;
+        }
+
+        &.light-green-1 {
+            background-color: $light-green-1;
         }
 
         &.orange {
