@@ -90,9 +90,6 @@ router.get("/api/status-page/heartbeat/:slug", cache("1 minutes"), async (reques
 
                 let uptime = await Monitor.calcUptimeInTimeWindow(monitorID, start, end);
                 uptimeListNew.push({
-                    msg: "",
-                    ping: 0,
-                    status: 1,
                     time: start.format("YYYY-MM-DD HH:mm:ss").toString(),
                     uptime: uptime,
                 });
