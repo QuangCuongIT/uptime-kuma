@@ -13,6 +13,7 @@
                     <font-awesome-icon v-if="editMode && showGroupDrag" icon="arrows-alt-v" class="action drag me-3" />
                     <font-awesome-icon v-if="editMode" icon="times" class="action remove me-3" @click="removeGroup(group.index)" />
                     <Editable v-model="group.element.name" :contenteditable="editMode" tag="span" />
+                    <font-awesome-icon icon="download" class="action ms-3" title="Export as report" @click="exportAsReport()" />
                 </h2>
 
                 <div class="shadow-box monitor-list mt-4 position-relative">
@@ -85,7 +86,7 @@
                                         </div>
                                     </div>
                                     <div :key="$root.userHeartbeatBar" class="col-3 col-md-4">
-                                        <UptimeHeartbeatBar renderAllHeartbeatList="true" size="small" :monitor-id="monitor.element.id" />
+                                        <UptimeHeartbeatBar :renderAllHeartbeatList="true" size="small" :monitor-id="monitor.element.id" />
                                     </div>
                                 </div>
                             </div>
@@ -102,6 +103,9 @@ import Draggable from "vuedraggable";
 import UptimeHeartbeatBar from "./UptimeHeartbeatBar.vue";
 import Uptime from "./Uptime.vue";
 import Tag from "./Tag.vue";
+import axios from "axios";
+import dayjs from "dayjs";
+import { saveAs } from "file-saver";
 
 export default {
     components: {
@@ -119,7 +123,12 @@ export default {
         /** Should tags be shown? */
         showTags: {
             type: Boolean,
-        }
+        },
+        /** Slug is used to downloading the report */
+        slug: {
+            type: String,
+            required: true,
+        },
     },
     data() {
         return {
@@ -141,6 +150,19 @@ export default {
          */
         removeGroup(index) {
             this.$root.publicGroupList.splice(index, 1);
+        },
+
+        /**
+         * Download as Excel report file
+         */
+        exportAsReport() {
+            axios.get("/api/export/" + this.slug, { responseType: "arraybuffer" })
+                .then((response) => {
+                    let blob = new Blob([response.data], {
+                        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    });
+                    saveAs(blob, dayjs.utc().format("YYYY-MM-DD UTC").toString() + ".xlsx");
+                });
         },
 
         /**
