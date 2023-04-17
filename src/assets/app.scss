@@ -22,6 +22,26 @@ textarea.form-control {
     width: 10px;
 }
 
+.bg-full-green {
+    background-color: $full-green!important;
+}
+
+.bg-light-green {
+    background-color: $light-green!important;
+}
+
+.bg-orange {
+    background-color: $orange!important;
+}
+
+.bg-red {
+    background-color: $red!important;
+}
+
+.bg-empty {
+    background-color: #848484!important;
+}
+
 .bg-maintenance {
     color: white !important;
     background-color: $maintenance !important;

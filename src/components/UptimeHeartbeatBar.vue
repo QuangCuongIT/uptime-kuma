@@ -4,17 +4,16 @@
             <div
                 v-for="(beat, index) in shortBeatList"
                 :key="index"
-                class="beat"
+                class="beat empty"
                 :class="{
-                    'empty': beat.uptime === null,
                     'full-green':
                         beat.uptime && beat.uptime <= 100 && beat.uptime >= 0.9999,
                     'light-green':
                         beat.uptime && beat.uptime < 0.9999 && beat.uptime >= 0.999,
                     'orange':
-                        beat.uptime && beat.uptime < 0.9999 && beat.uptime >= 0.99,
+                        beat.uptime && beat.uptime < 0.999 && beat.uptime >= 0.99,
                     'red':
-                        beat.uptime && beat.uptime < 0.99 && beat.uptime >= 0,
+                        beat.uptime !== null && beat.uptime < 0.99 && beat.uptime >= 0,
                 }"
                 :style="beatStyle"
                 :title="getBeatTitle(beat)"
@@ -70,7 +69,7 @@ export default {
             } else {
                 list = this.heartbeatList;
             }
-            return list.reverse();
+            return list ? list.reverse() : [];
         },
 
         shortBeatList() {

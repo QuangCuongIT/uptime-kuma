@@ -22,6 +22,11 @@ export default {
             type: Boolean,
             default: false,
         },
+        /** Coloring by uptime value instead of lastHeartBeat */
+        coloringByUptime: {
+            type: Boolean,
+            default: false,
+        },
     },
 
     computed: {
@@ -46,23 +51,44 @@ export default {
         },
 
         color() {
-            if (this.lastHeartBeat.status === MAINTENANCE) {
-                return "maintenance";
-            }
+            if (this.coloringByUptime) {
+                let key = this.monitor.id + "_" + this.type;
+                let uptime = this.$root.uptimeList[key];
+                if (uptime !== undefined) {
+                    if (uptime <= 100 && uptime >= 0.9999) {
+                        return "full-green";
+                    }
+                    if (uptime < 0.9999 && uptime >= 0.999) {
+                        return "light-green";
+                    }
+                    if (uptime < 0.999 && uptime >= 0.99) {
+                        return "orange";
+                    }
+                    if (uptime < 0.99 && uptime >= 0) {
+                        return "red";
+                    }
+                }
 
-            if (this.lastHeartBeat.status === DOWN) {
-                return "danger";
-            }
+                return "empty";
+            } else {
+                if (this.lastHeartBeat.status === MAINTENANCE) {
+                    return "maintenance";
+                }
 
-            if (this.lastHeartBeat.status === UP) {
-                return "primary";
-            }
+                if (this.lastHeartBeat.status === DOWN) {
+                    return "danger";
+                }
 
-            if (this.lastHeartBeat.status === PENDING) {
-                return "warning";
-            }
+                if (this.lastHeartBeat.status === UP) {
+                    return "primary";
+                }
 
-            return "secondary";
+                if (this.lastHeartBeat.status === PENDING) {
+                    return "warning";
+                }
+
+                return "secondary";
+            }
         },
 
         lastHeartBeat() {

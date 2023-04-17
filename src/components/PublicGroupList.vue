@@ -68,19 +68,19 @@
                                         <div class="col">
                                             <p>24{{ $t("-hour") }}</p>
                                             <span class="num">
-                                                <Uptime :monitor="monitor.element" type="24" :pill="true" />
+                                                <Uptime :monitor="monitor.element" type="24" :pill="true" :coloringByUptime="true" />
                                             </span>
                                         </div>
                                         <div class="col">
                                             <p>30{{ $t("-day") }}</p>
                                             <span class="num">
-                                                <Uptime :monitor="monitor.element" type="720" :pill="true" />
+                                                <Uptime :monitor="monitor.element" type="720" :pill="true" :coloringByUptime="true" />
                                             </span>
                                         </div>
                                         <div class="col">
                                             <p>365{{ $t("-day") }}</p>
                                             <span class="num">
-                                                <Uptime :monitor="monitor.element" type="8760" :pill="true" />
+                                                <Uptime :monitor="monitor.element" type="8760" :pill="true" :coloringByUptime="true" />
                                             </span>
                                         </div>
                                     </div>
