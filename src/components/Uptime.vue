@@ -4,6 +4,7 @@
 
 <script>
 import { DOWN, MAINTENANCE, PENDING, UP } from "../util.ts";
+import { colorUptime } from "../util-frontend";
 
 export default {
     props: {
@@ -54,25 +55,7 @@ export default {
             if (this.coloringByUptime) {
                 let key = this.monitor.id + "_" + this.type;
                 let uptime = this.$root.uptimeList[key];
-                if (uptime !== undefined) {
-                    if (uptime <= 100 && uptime >= 0.9999) {
-                        return "full-green";
-                    }
-                    if (uptime < 0.9999 && uptime >= 0.999) {
-                        return "light-green";
-                    }
-                    if (uptime < 0.999 && uptime >= 0.99) {
-                        return "light-green-1";
-                    }
-                    if (uptime < 0.99 && uptime >= 0.90) {
-                        return "orange";
-                    }
-                    if (uptime < 0.90 && uptime >= 0) {
-                        return "red";
-                    }
-                }
-
-                return "empty";
+                return colorUptime(uptime);
             } else {
                 if (this.lastHeartBeat.status === MAINTENANCE) {
                     return "maintenance";

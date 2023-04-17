@@ -120,3 +120,28 @@ export function colorOptions(self) {
             color: "#DB2777" },
     ];
 }
+
+/**
+ * Get uptime color based on the percentage
+ * @returns {String}
+ */
+export function colorUptime(uptime = null) {
+    if (uptime === null || uptime === undefined) {
+        return "empty";
+    }
+    if (uptime && uptime <= 100 && uptime >= 0.9999) {
+        return "full-green";
+    }
+    if (uptime && uptime < 0.9999 && uptime >= 0.999) {
+        return "light-green";
+    }
+    if (uptime && uptime < 0.999 && uptime >= 0.99) {
+        return "light-green-1";
+    }
+    if (uptime && uptime < 0.99 && uptime >= 0.90) {
+        return "orange";
+    }
+    if (uptime !== null && uptime < 0.90 && uptime >= 0) {
+        return "red";
+    }
+}

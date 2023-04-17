@@ -5,19 +5,7 @@
                 v-for="(beat, index) in shortBeatList"
                 :key="index"
                 class="beat"
-                :class="{
-                    'empty': beat.uptime === null,
-                    'full-green':
-                        beat.uptime && beat.uptime <= 100 && beat.uptime >= 0.9999,
-                    'light-green':
-                        beat.uptime && beat.uptime < 0.9999 && beat.uptime >= 0.999,
-                    'light-green-1':
-                        beat.uptime && beat.uptime < 0.999 && beat.uptime >= 0.99,
-                    'orange':
-                        beat.uptime && beat.uptime < 0.99 && beat.uptime >= 0.90,
-                    'red':
-                        beat.uptime !== null && beat.uptime < 0.90 && beat.uptime >= 0,
-                }"
+                :class="colorUptimeValue(beat.uptime)"
                 :style="beatStyle"
                 :title="getBeatTitle(beat)"
             />
@@ -26,6 +14,7 @@
 </template>
 
 <script>
+import { colorUptime } from "../util-frontend";
 
 export default {
     props: {
@@ -204,6 +193,10 @@ export default {
         getBeatTitle(beat) {
             return `${this.$root.datetime(beat.time)}` + ((beat.uptime) ? ` - ${(Math.round((beat.uptime * 100) * 100) / 100)}%` : " - no data");
         },
+
+        colorUptimeValue(uptime) {
+            return colorUptime(uptime);
+        }
 
     },
 };
