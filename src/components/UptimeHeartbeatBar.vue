@@ -4,8 +4,9 @@
             <div
                 v-for="(beat, index) in shortBeatList"
                 :key="index"
-                class="beat empty"
+                class="beat"
                 :class="{
+                    'empty': beat.uptime === null,
                     'full-green':
                         beat.uptime && beat.uptime <= 100 && beat.uptime >= 0.9999,
                     'light-green':
