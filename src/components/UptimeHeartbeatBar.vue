@@ -5,7 +5,7 @@
                 v-for="(beat, index) in shortBeatList"
                 :key="index"
                 class="beat"
-                :class="{ 'empty' : (beat === 0), 'down' : (beat.status === 0), 'pending' : (beat.status === 2), 'maintenance' : (beat.status === 3) }"
+                :class="colorUptimeValue(beat.uptime)"
                 :style="beatStyle"
                 :title="getBeatTitle(beat)"
             />
@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import { colorUptime } from "../util-frontend";
 
 export default {
     props: {
@@ -54,11 +55,13 @@ export default {
          * If heartbeatList is null, get it from $root.heartbeatList
          */
         beatList() {
+            let list = [];
             if (this.heartbeatList === null) {
-                return this.$root.heartbeatList[this.monitorId];
+                list = this.$root.heartbeatList[this.monitorId];
             } else {
-                return this.heartbeatList;
+                list = this.heartbeatList;
             }
+            return list ? list.reverse() : [];
         },
 
         shortBeatList() {
@@ -188,8 +191,12 @@ export default {
          * @returns {string}
          */
         getBeatTitle(beat) {
-            return `${this.$root.datetime(beat.time)}` + ((beat.msg) ? ` - ${beat.msg}` : "");
+            return `${this.$root.datetime(beat.time)}` + ((beat.uptime) ? ` - ${(Math.round((beat.uptime * 100) * 100) / 100)}%` : " - no data");
         },
+
+        colorUptimeValue(uptime) {
+            return colorUptime(uptime);
+        }
 
     },
 };
@@ -214,16 +221,24 @@ export default {
             background-color: aliceblue;
         }
 
-        &.down {
+        &.red {
             background-color: $danger;
         }
 
-        &.pending {
-            background-color: $warning;
+        &.light-green-1 {
+            background-color: $light-green-1;
         }
 
-        &.maintenance {
-            background-color: $maintenance;
+        &.orange {
+            background-color: $orange;
+        }
+
+        &.full-green {
+            background-color: $full-green;
+        }
+
+        &.light-green {
+            background-color: $light-green;
         }
 
         &:not(.empty):hover {

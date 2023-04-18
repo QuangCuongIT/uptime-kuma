@@ -13,6 +13,7 @@
                     <font-awesome-icon v-if="editMode && showGroupDrag" icon="arrows-alt-v" class="action drag me-3" />
                     <font-awesome-icon v-if="editMode" icon="times" class="action remove me-3" @click="removeGroup(group.index)" />
                     <Editable v-model="group.element.name" :contenteditable="editMode" tag="span" />
+                    <font-awesome-icon icon="download" class="download action ms-3" title="Export as report" @click="exportAsReport()" />
                 </h2>
 
                 <div class="shadow-box monitor-list mt-4 position-relative">
@@ -33,41 +34,61 @@
                         <template #item="monitor">
                             <div class="item">
                                 <div class="row">
-                                    <div class="col-9 col-md-8 small-padding">
-                                        <div class="info">
-                                            <font-awesome-icon v-if="editMode" icon="arrows-alt-v" class="action drag me-3" />
-                                            <font-awesome-icon v-if="editMode" icon="times" class="action remove me-3" @click="removeMonitor(group.index, monitor.index)" />
+                                    <div class="col-4 col-md-4 small-padding">
+                                        <div class="info row">
+                                            <div class="col-12 col-md-12">
+                                                <font-awesome-icon v-if="editMode" icon="arrows-alt-v" class="action drag me-3" />
+                                                <font-awesome-icon v-if="editMode" icon="times" class="action remove me-3" @click="removeMonitor(group.index, monitor.index)" />
+                                                <a
+                                                    v-if="showLink(monitor)"
+                                                    :href="monitor.element.url"
+                                                    class="item-name"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {{ monitor.element.name }}
+                                                </a>
+                                                <p v-else class="item-name"> {{ monitor.element.name }} </p>
+                                                <span
+                                                    v-if="showLink(monitor, true)"
+                                                    title="Toggle Clickable Link"
+                                                >
+                                                    <font-awesome-icon
+                                                        v-if="editMode"
+                                                        :class="{'link-active': monitor.element.sendUrl, 'btn-link': true}"
+                                                        icon="link" class="action me-3"
 
-                                            <Uptime :monitor="monitor.element" type="24" :pill="true" />
-                                            <a
-                                                v-if="showLink(monitor)"
-                                                :href="monitor.element.url"
-                                                class="item-name"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                {{ monitor.element.name }}
-                                            </a>
-                                            <p v-else class="item-name"> {{ monitor.element.name }} </p>
-                                            <span
-                                                v-if="showLink(monitor, true)"
-                                                title="Toggle Clickable Link"
-                                            >
-                                                <font-awesome-icon
-                                                    v-if="editMode"
-                                                    :class="{'link-active': monitor.element.sendUrl, 'btn-link': true}"
-                                                    icon="link" class="action me-3"
-
-                                                    @click="toggleLink(group.index, monitor.index)"
-                                                />
-                                            </span>
+                                                        @click="toggleLink(group.index, monitor.index)"
+                                                    />
+                                                </span>
+                                            </div>
+                                            <div class="col-12 col-md-12 row mt-3 ms-2">
+                                                <div class="col">
+                                                    <p>24{{ $t("-hour") }}</p>
+                                                    <span class="num">
+                                                        <Uptime :monitor="monitor.element" type="24" :pill="true" :coloringByUptime="true" />
+                                                    </span>
+                                                </div>
+                                                <div class="col">
+                                                    <p>30{{ $t("-day") }}</p>
+                                                    <span class="num">
+                                                        <Uptime :monitor="monitor.element" type="720" :pill="true" :coloringByUptime="true" />
+                                                    </span>
+                                                </div>
+                                                <div class="col">
+                                                    <p>365{{ $t("-day") }}</p>
+                                                    <span class="num">
+                                                        <Uptime :monitor="monitor.element" type="8760" :pill="true" :coloringByUptime="true" />
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div v-if="showTags" class="tags">
                                             <Tag v-for="tag in monitor.element.tags" :key="tag" :item="tag" :size="'sm'" />
                                         </div>
                                     </div>
-                                    <div :key="$root.userHeartbeatBar" class="col-3 col-md-4">
-                                        <HeartbeatBar size="small" :monitor-id="monitor.element.id" />
+                                    <div :key="$root.userHeartbeatBar" class="col-8 col-md-8">
+                                        <UptimeHeartbeatBar :renderAllHeartbeatList="true" size="small" :monitor-id="monitor.element.id" />
                                     </div>
                                 </div>
                             </div>
@@ -81,14 +102,17 @@
 
 <script>
 import Draggable from "vuedraggable";
-import HeartbeatBar from "./HeartbeatBar.vue";
+import UptimeHeartbeatBar from "./UptimeHeartbeatBar.vue";
 import Uptime from "./Uptime.vue";
 import Tag from "./Tag.vue";
+import axios from "axios";
+import dayjs from "dayjs";
+import { saveAs } from "file-saver";
 
 export default {
     components: {
         Draggable,
-        HeartbeatBar,
+        UptimeHeartbeatBar,
         Uptime,
         Tag,
     },
@@ -101,7 +125,12 @@ export default {
         /** Should tags be shown? */
         showTags: {
             type: Boolean,
-        }
+        },
+        /** Slug is used to downloading the report */
+        slug: {
+            type: String,
+            required: true,
+        },
     },
     data() {
         return {
@@ -123,6 +152,19 @@ export default {
          */
         removeGroup(index) {
             this.$root.publicGroupList.splice(index, 1);
+        },
+
+        /**
+         * Download as Excel report file
+         */
+        exportAsReport() {
+            axios.get("/api/export/" + this.slug, { responseType: "arraybuffer" })
+                .then((response) => {
+                    let blob = new Blob([response.data], {
+                        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    });
+                    saveAs(blob, dayjs.utc().format("YYYY-MM-DD UTC").toString() + ".xlsx");
+                });
         },
 
         /**
@@ -210,6 +252,10 @@ export default {
 
 .remove {
     color: $danger;
+}
+
+.download {
+    font-size: 20px;
 }
 
 .group-title {

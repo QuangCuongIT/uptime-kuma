@@ -4,6 +4,7 @@
 
 <script>
 import { DOWN, MAINTENANCE, PENDING, UP } from "../util.ts";
+import { colorUptime } from "../util-frontend";
 
 export default {
     props: {
@@ -19,6 +20,11 @@ export default {
         },
         /** Is this a pill? */
         pill: {
+            type: Boolean,
+            default: false,
+        },
+        /** Coloring by uptime value instead of lastHeartBeat */
+        coloringByUptime: {
             type: Boolean,
             default: false,
         },
@@ -46,23 +52,29 @@ export default {
         },
 
         color() {
-            if (this.lastHeartBeat.status === MAINTENANCE) {
-                return "maintenance";
-            }
+            if (this.coloringByUptime) {
+                let key = this.monitor.id + "_" + this.type;
+                let uptime = this.$root.uptimeList[key];
+                return colorUptime(uptime);
+            } else {
+                if (this.lastHeartBeat.status === MAINTENANCE) {
+                    return "maintenance";
+                }
 
-            if (this.lastHeartBeat.status === DOWN) {
-                return "danger";
-            }
+                if (this.lastHeartBeat.status === DOWN) {
+                    return "danger";
+                }
 
-            if (this.lastHeartBeat.status === UP) {
-                return "primary";
-            }
+                if (this.lastHeartBeat.status === UP) {
+                    return "primary";
+                }
 
-            if (this.lastHeartBeat.status === PENDING) {
-                return "warning";
-            }
+                if (this.lastHeartBeat.status === PENDING) {
+                    return "warning";
+                }
 
-            return "secondary";
+                return "secondary";
+            }
         },
 
         lastHeartBeat() {
@@ -86,6 +98,9 @@ export default {
         title() {
             if (this.type === "720") {
                 return `30${this.$t("-day")}`;
+            }
+            if (this.type === "8760") {
+                return `365${this.$t("-day")}`;
             }
 
             return `24${this.$t("-hour")}`;

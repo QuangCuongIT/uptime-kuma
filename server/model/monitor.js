@@ -959,6 +959,7 @@ class Monitor extends BeanModel {
             await Monitor.sendAvgPing(24, io, monitorID, userID);
             await Monitor.sendUptime(24, io, monitorID, userID);
             await Monitor.sendUptime(24 * 30, io, monitorID, userID);
+            await Monitor.sendUptime(24 * 365, io, monitorID, userID);
             await Monitor.sendCertInfo(io, monitorID, userID);
         } else {
             log.debug("monitor", "No clients in the room, no need to send stats");
@@ -1078,6 +1079,76 @@ class Monitor extends BeanModel {
 
         // Cache
         UptimeCacheList.addUptime(monitorID, duration, uptime);
+
+        return uptime;
+    }
+
+    /**
+     * Uptime with calculation
+     * Calculation based on:
+     * https://www.uptrends.com/support/kb/reporting/calculation-of-uptime-and-downtime
+     * @param {number} monitorID ID of monitor to calculate
+     * @param {dayjs.Dayjs} startTime start time window
+     * @param {dayjs.Dayjs} endTime end time window
+     */
+    static async calcUptimeInTimeWindow(monitorID, startTime, endTime) {
+        const startIsoTime = R.isoDateTime(startTime);
+        const endIsoTime = R.isoDateTime(endTime);
+
+        // Handle if heartbeat duration longer than the target duration
+        // e.g. If the last beat's duration is bigger that the 24hrs window, it will use the duration between the (beat time - window margin) (THEN case in SQL)
+        let result = await R.getRow(`
+            SELECT
+               -- SUM all duration, also trim off the beat out of time window
+                SUM(
+                    CASE
+                        WHEN (JULIANDAY(\`time\`) - JULIANDAY(?)) * 86400 < duration
+                        THEN (JULIANDAY(\`time\`) - JULIANDAY(?)) * 86400
+                        ELSE duration
+                    END
+                ) AS total_duration,
+
+               -- SUM all uptime duration, also trim off the beat out of time window
+                SUM(
+                    CASE
+                        WHEN (status = 1 OR status = 3)
+                        THEN
+                            CASE
+                                WHEN (JULIANDAY(\`time\`) - JULIANDAY(?)) * 86400 < duration
+                                    THEN (JULIANDAY(\`time\`) - JULIANDAY(?)) * 86400
+                                ELSE duration
+                            END
+                        END
+                ) AS uptime_duration
+            FROM heartbeat
+            WHERE time > ? AND time < ?
+            AND monitor_id = ?
+        `, [
+            startIsoTime, startIsoTime, startIsoTime, startIsoTime, startIsoTime, endIsoTime,
+            monitorID,
+        ]);
+
+        let totalDuration = result.total_duration;
+        let uptimeDuration = result.uptime_duration;
+        let uptime = null;
+
+        if (totalDuration > 0) {
+            uptime = uptimeDuration / totalDuration;
+            if (uptime < 0) {
+                uptime = 0;
+            }
+
+        } else {
+            // Handle new monitor with only one beat, because the beat's duration = 0
+            let status = parseInt(await R.getCell("SELECT `status` FROM heartbeat WHERE monitor_id = ? AND time > ? AND time < ?", [ monitorID, startIsoTime, endIsoTime ]));
+
+            if (!isNaN(status)) {
+                uptime = 0;
+            }
+            if (status === UP) {
+                uptime = 1;
+            }
+        }
 
         return uptime;
     }
